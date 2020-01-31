@@ -1,0 +1,8 @@
+version: '2'
+
+
+services:
+  addressbook:
+    build: . 
+    ports:
+      - '9090:8080'
