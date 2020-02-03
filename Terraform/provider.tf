@@ -1,6 +1,6 @@
 terraform {
   backend "local" {
-    path = "/tmp/terraform/workspace/terraform.tfstate"
+    path = "/var/lib/jenkins/terraform/workspace/terraform.tfstate"
   }
 
 }
