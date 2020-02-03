@@ -8,4 +8,4 @@ MAINTAINER Vikas
 COPY target/addressbook.war /usr/local/tomcat/webapps/
 
 # Start the tomcat service
-#CMD ["catalina.sh", "run"]
+CMD ["catalina.sh", "run"]
