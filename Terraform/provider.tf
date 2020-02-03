@@ -41,7 +41,7 @@ provisioner "local-exec" {
         echo "[jenkins-ci]"| tee -a jenkins-ci.ini;
         export ANSIBLE_HOST_KEY_CHECKING=False;
         echo "${aws_instance.backend.public_ip}" | tee -a jenkins-ci.ini;
-        ansible-playbook  -i jenkins-ci.ini -u ec2-user --key ${var.pvt_key} ./Ansible/web-playbook.yaml -v    
+        ansible-playbook  -i jenkins-ci.ini -u ec2-user --key ${var.pvt_key} ../Ansible/web-playbook.yaml -v    
     EOT
 }
 }
