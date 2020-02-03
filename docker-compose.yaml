@@ -4,4 +4,4 @@ services:
   addressbook:
     build: . 
     ports:
-      - '90900:8080'
+      - '9090:8080'
