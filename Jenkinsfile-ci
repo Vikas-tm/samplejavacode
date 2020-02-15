@@ -1,0 +1,82 @@
+node {
+    try {
+        notify ('Job Started')
+  stage('Git-Checkout') {
+   git 'https://github.com/Vikas-tm/samplejavacode.git'
+  }
+      
+   stage('Maven-Clean') {
+   sh label: '', script: 'mvn clean'
+  }
+    
+ stage('Maven-Compile') {
+   sh label: '', script: 'mvn compile'
+  }
+  
+   stage('Maven-Test') {
+   sh label: '', script: 'mvn test'
+     }
+     
+     stage ('Sonarqube')
+    {
+        withSonarQubeEnv('vik-sonar')
+        {
+            sh 'mvn sonar:sonar'
+        }
+        }
+    sleep(10)
+
+     stage("Quality Gate"){
+          timeout(time: 1, unit: 'HOURS') {
+              def qg = waitForQualityGate()
+              if (qg.status != 'OK') {
+                  error "Pipeline aborted due to quality gate failure: ${qg.status}"
+				  abortPipeline: true
+              }
+          }
+      }
+  
+  stage('Maven-Package') {
+   sh label: '', script: 'mvn package'
+  }
+  
+    stage('Archive-Artifacts') {
+   archiveArtifacts 'target/*.war'
+  }
+  
+   stage('Upload Archive to Artifactory ')
+	{
+	def server = Artifactory.server('vik-artifactory')
+	def uploadSpec = """{
+			"files": [
+					{
+						"pattern": "**/*.war",
+						"target": "M1036759/"
+					}
+					 ]
+						}"""
+							server.upload(uploadSpec)
+						}
+
+  
+   notify ('Job ended')
+}   
+  
+catch(err) {
+  notify("Error ${err}")
+  currentBuild.result = 'FAILURE'
+}
+/* stage('Stage Deploy approval'){
+    input "Deploy to stage?"
+    build 'addressbook-pipeline-cd-stg'
+} */
+}
+
+def notify(status){
+    emailext (
+	to: "vikas.tm@gmail.com",
+	subject: "${status}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+	 body: """<p>${status}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
+	<p>Check console output at <a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a></p>""",
+		)
+	}
